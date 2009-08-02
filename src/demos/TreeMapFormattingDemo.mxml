@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+                creationComplete="dataLoader.send()"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                fontFamily="Arial"
+                color="#333333">
+
+  <mx:Script>
+    <![CDATA[
+      import flare.vis.data.Tree;
+      import org.juicekit.events.DataMouseEvent;
+      import org.juicekit.util.data.GraphUtil;
+      import mx.rpc.http.HTTPService;
+      import mx.rpc.events.ResultEvent;
+      import flare.util.Strings;
+      import flare.query.methods.*;
+      import flare.data.converters.DelimitedTextConverter;
+
+
+      public function resultHandler(event:ResultEvent):void {
+        var d:Array = new DelimitedTextConverter(',').parse(event.result as String).nodes.data;
+
+        var d2:Array = [];
+        var states:Array = ['Vermont', 'New Hampshire', 'Rhode Island', 'Maine', 'Massachusetts', 'Connecticut'];
+        for each (var o:Object in d) {
+          if (o.SUMLEV == 40 && o.SEX != 0 && o.AGE != 999 && states.indexOf(o.NAME) != -1) {
+            d2.push(o);
+          } 
+        }
+        d = d2;
+        /*
+           The data looks like this:
+
+           SUMLEV,REGION,DIVISION,STATE,NAME,SEX,AGE,CENSUS2000_CIV,ESTBASE2000_CIV,POPEST2000_CIV,POPEST2001_CIV,POPEST2002_CIV,POPEST2003_CIV,POPEST2004_CIV,POPEST2005_CIV,POPEST2006_CIV,POPEST2007_CIV,POPEST2008_CIV
+           010,0,0,0,United States,0,0,3805648,3805718,3855509,4026137,3985649,4032152,4092369,4101644,4159778,4273543,4313132
+         */
+
+        var t:Tree = GraphUtil.treeMap(d,
+          ['SEX', 'NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          // Percentage change in population from 2000 to 2008.
+          // change = (POPEST2008_CIV - POPEST2000_CIV) / POPEST2008_CIV
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ],
+          // the Census data includes multiple levels of summarization.
+          // o.SEX: 0: Male + Female, 1: Male, 2: Female
+          // o.SUMLEV: 40: state level summaries
+          // o.AGE: 0: Age0, 1: Age1 .... 84: Age84, 85: Age 85+, 999: All Ages together
+          function(o:Object):Boolean {return (o.SUMLEV == 40 && o.SEX != 0 && o.AGE != 999)}
+          );
+        var t2:Tree = GraphUtil.treeMap(d,
+          ['NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ]);
+        var t3:Tree = GraphUtil.treeMap(d,
+          ['NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ]);
+        
+        var t4:Tree = GraphUtil.treeMap(d,
+          ['NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ]);
+        var t5:Tree = GraphUtil.treeMap(d,
+          ['SEX','AGE','NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ]);
+        var t6:Tree = GraphUtil.treeMap(d,
+          ['SEX','AGE','NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          {change: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ])
+        
+        treemap.data = t;
+        treemap2.data = t2;
+        treemap3.data = t3;
+        treemap4.data = t4;
+        treemap5.data = t5;
+        treemap6.data = t6;
+        
+        treemap5.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void {
+          e.currentTarget.dataRoot = e.currentTarget.dataRoot.getChildNode(0);
+        });
+        treemap6.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void {
+          e.currentTarget.dataRoot = e.currentTarget.dataRoot.getChildNode(0);
+        });
+
+        treemap.addEventListener(DataMouseEvent.MOUSE_OVER, function(e:DataMouseEvent):void {
+            selectedNode.text = Strings.format("State: {0}, Sex: {1:0}, Size: {2:0.0}, Color: {3:0.0%}, 2008: {4:0.0}",
+              e.data.NAME,
+              e.data.SEX,
+              e.data[treemap.sizeEncodingField],
+              e.data[treemap.colorEncodingField],
+              e.data.POPEST2008_CIV);
+            if (treemap.getStyle('palette') != 'hot')treemap.setStyle('palette', 'hot');
+          });
+        treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
+            selectedNode.text = '';
+            if (treemap.getStyle('palette') != 'bone')treemap.setStyle('palette', 'bone');
+          });
+      }
+    ]]>
+  </mx:Script>
+
+  <mx:HTTPService id="dataLoader"
+                  url="http://media.juiceanalytics.com/census/SC-EST2008-AGESEX-CIV.csv"
+                  method="GET"
+                  showBusyCursor="true"
+                  result="resultHandler(event)"
+                  resultFormat="text"/>
+
+  <mx:VBox id="treemapGroup">
+    <mx:Label id="treemapGroupTitle"
+              text="TreeMap formating options demo"
+              fontSize="18"
+              color="#333333"
+              fontWeight="bold"/>
+              
+    <mx:Label text="palette" fontSize="14" fontWeight="bold" color="0x333333"/>
+    <mx:HBox>
+      <mx:Label text="Color palette name (hot, autumn, summer, RdBu)"/>
+      <mx:TextInput id="txtColorPalette" width="70"/>
+    </mx:HBox>
+    <controls:TreeMapControl id="treemap"
+                             width="300"
+                             height="200"
+                             palette="{txtColorPalette.text}"
+                             colorEncodingField="change"
+                             sizeEncodingField="POPEST2008_CIV"
+                             transitionPeriod="0.6" strokeColors="[0x333333, 0x333333, 0x666666, 0x666666]"
+                             strokeThicknesses="[0,2,1,0,0]"/>
+    <mx:Label id="selectedNode" text=""/>
+
+    <mx:Label text="labelColorStrategy" fontSize="14" fontWeight="bold" color="0x333333"/>
+    <mx:HBox>
+      <mx:VBox>
+        <mx:Label text="blackwhite"/>
+        <controls:TreeMapControl id="treemap2"
+                                 width="250"
+                                 height="200" 
+                                 labelColorStrategy="blackwhite" 
+                                 labelEncodingField="name"
+                                 truncateToFit="true"
+                                 fontSize="10"
+                                 palette="{txtColorPalette.text}"
+                                 colorEncodingField="change"
+                                 sizeEncodingField="POPEST2008_CIV"
+                                 transitionPeriod="0.6" strokeColors="[0x333333, 0x333333, 0x666666, 0x666666]"
+                                 strokeThicknesses="[0,2,1,0,0]"/>
+      </mx:VBox>  
+      <mx:VBox>
+        <mx:Label text="glow"/>
+        <controls:TreeMapControl id="treemap3"
+                                 width="250"
+                                 height="200" 
+                                 labelColorStrategy="glow" 
+                                 labelEncodingField="name"
+                                 truncateToFit="true"
+                                 fontSize="10"
+                                 palette="{txtColorPalette.text}"
+                                 colorEncodingField="change"
+                                 sizeEncodingField="POPEST2008_CIV"
+                                 transitionPeriod="0.6" strokeColors="[0x333333, 0x333333, 0x666666, 0x666666]"
+                                 strokeThicknesses="[0,2,1,0,0]"/>
+      </mx:VBox>  
+      <mx:VBox>
+        <mx:Label text="none"/>
+        <controls:TreeMapControl id="treemap4"
+                                 width="250"
+                                 height="200" 
+                                 labelColorStrategy="none" 
+                                 labelEncodingField="name"
+                                 truncateToFit="true"
+                                 fontSize="10"
+                                 palette="{txtColorPalette.text}"
+                                 colorEncodingField="change"
+                                 sizeEncodingField="POPEST2008_CIV"
+                                 transitionPeriod="0.6" strokeColors="[0x333333, 0x333333, 0x666666, 0x666666]"
+                                 strokeThicknesses="[0,2,1,0,0]"/>
+      </mx:VBox>  
+    </mx:HBox>
+    <mx:Label text="styleFromDataRoot" fontSize="14" fontWeight="bold" color="0x333333"/>
+    <mx:HBox>
+      <mx:VBox>
+        <mx:Label text="true"/>
+        <controls:TreeMapControl id="treemap5"
+                                 width="250"
+                                 height="200" 
+                                 labelColorStrategy="blackwhite" 
+                                 labelEncodingField="name"
+                                 truncateToFit="true"
+                                 styleFromDataRoot="true" 
+                                 fontSize="10"
+                                 palette="{txtColorPalette.text}"
+                                 colorEncodingField="change"
+                                 sizeEncodingField="POPEST2008_CIV"
+                                 transitionPeriod="0.6" strokeColors="[0x000000, 0xff0000, 0x00ff00, 0x0000ff]"
+                                 strokeThicknesses="[0,6, 4, 2]"/>
+      </mx:VBox>  
+      <mx:VBox>
+        <mx:Label text="false"/>
+        <controls:TreeMapControl id="treemap6"
+                                 width="250"
+                                 height="200" 
+                                 labelColorStrategy="blackwhite" 
+                                 labelEncodingField="name"
+                                 truncateToFit="true"
+                                 styleFromDataRoot="false" 
+                                 fontSize="10"
+                                 palette="{txtColorPalette.text}"
+                                 colorEncodingField="change"
+                                 sizeEncodingField="POPEST2008_CIV"
+                                 transitionPeriod="0.6" strokeColors="[0x000000, 0xff0000, 0x00ff00, 0x0000ff]"
+                                 strokeThicknesses="[0,6, 4, 2]"/>
+      </mx:VBox>  
+    </mx:HBox>
+
+  </mx:VBox>
+
+</mx:VBox>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+                creationComplete="dataLoader.send()"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                fontFamily="Arial"
+                color="#333333">
+
+  <mx:Script>
+    <![CDATA[
+      import org.juicekit.events.DataMouseEvent;
+      import org.juicekit.util.data.GraphUtil;
+      import mx.rpc.http.HTTPService;
+      import mx.rpc.events.ResultEvent;
+      import flare.util.Strings;
+      import flare.query.methods.*;
+      import flare.data.converters.DelimitedTextConverter;
+
+
+      public function resultHandler(event:ResultEvent):void {
+        var d:Array = new DelimitedTextConverter(',').parse(event.result as String).nodes.data;
+        /*
+           The data looks like this:
+
+           SUMLEV,REGION,DIVISION,STATE,NAME,SEX,AGE,CENSUS2000_CIV,ESTBASE2000_CIV,POPEST2000_CIV,POPEST2001_CIV,POPEST2002_CIV,POPEST2003_CIV,POPEST2004_CIV,POPEST2005_CIV,POPEST2006_CIV,POPEST2007_CIV,POPEST2008_CIV
+           010,0,0,0,United States,0,0,3805648,3805718,3855509,4026137,3985649,4032152,4092369,4101644,4159778,4273543,4313132
+         */
+
+        treemap.data = GraphUtil.treeMap(d,
+          ['SEX', 'NAME'],
+          ['POPEST2000_CIV',
+          'POPEST2008_CIV',
+          // Percentage change in population from 2000 to 2008.
+          // change = (POPEST2008_CIV - POPEST2000_CIV) / POPEST2008_CIV
+          {change: div(sub('POPEST2008_CIV', 'POPEST2000_CIV'), 'POPEST2000_CIV')},
+          {change2: pctchange('POPEST2008_CIV', 'POPEST2000_CIV')}          
+          ],
+          // the Census data includes multiple levels of summarization.
+          // o.SEX: 0: Male + Female, 1: Male, 2: Female
+          // o.SUMLEV: 40: state level summaries
+          // o.AGE: 0: Age0, 1: Age1 .... 84: Age84, 85: Age 85+, 999: All Ages together
+          function(o:Object):Boolean {return (o.SUMLEV == 40 && o.SEX != 0 && o.AGE != 999)}
+          );
+
+        treemap.addEventListener(DataMouseEvent.MOUSE_OVER, function(e:DataMouseEvent):void {
+            selectedNode.text = Strings.format("State: {0}, Sex: {1:0}, Size: {2:0.0}, Color: {3:0.0%}, 2008: {4:0.0}",
+              e.data.NAME,
+              e.data.SEX,
+              e.data[treemap.sizeEncodingField],
+              e.data[treemap.colorEncodingField],
+              e.data.POPEST2008_CIV);
+            if (treemap.getStyle('palette') != 'hot')treemap.setStyle('palette', 'hot');
+          });
+        treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
+            selectedNode.text = '';
+            if (treemap.getStyle('palette') != 'bone')treemap.setStyle('palette', 'bone');
+          });
+      }
+    ]]>
+  </mx:Script>
+
+  <mx:HTTPService id="dataLoader"
+                  url="http://media.juiceanalytics.com/census/SC-EST2008-AGESEX-CIV.csv"
+                  method="GET"
+                  showBusyCursor="true"
+                  result="resultHandler(event)"
+                  resultFormat="text"/>
+
+  <mx:VBox id="treemapGroup">
+    <mx:Button label="change" click="{treemap.colorEncodingField='change'}"/>
+    <mx:Button label="change2" click="{treemap.colorEncodingField='change2'}"/>
+    <mx:Label id="treemapGroupTitle"
+              text="TreeMap demo"
+              fontSize="18"
+              color="#333333"
+              fontWeight="bold"/>
+              
+    <controls:TreeMapControl id="treemap"
+                             width="600"
+                             height="400"
+                             palette="bone"
+                             colorEncodingField="change"
+                             sizeEncodingField="POPEST2008_CIV"
+                             transitionPeriod="0.6" strokeColors="[0x333333, 0x333333, 0x666666, 0x666666]"
+                             strokeThicknesses="[0,2,1,0,0]"/>
+    <mx:Label id="selectedNode" text=""/>
+  </mx:VBox>
+
+</mx:VBox>

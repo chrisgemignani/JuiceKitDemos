@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+                creationComplete="onCreationComplete()"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                fontFamily="Arial"
+                color="#333333"
+                >
+
+  <mx:Script>
+    <![CDATA[
+    	import flare.query.Query;
+      import mx.collections.ArrayCollection;
+      import flare.util.Strings;
+      import org.juicekit.events.DataMouseEvent;
+      import flare.vis.data.Tree;
+      import mx.rpc.http.HTTPService;
+      import mx.rpc.events.ResultEvent;
+      import mx.rpc.events.FaultEvent;
+      import org.juicekit.visual.controls.TreeMapControl;
+      import mx.controls.Label;
+      import org.juicekit.util.data.GraphUtil;
+      import flare.data.DataSet;
+      import flare.query.methods.*;
+      import flare.data.converters.DelimitedTextConverter;
+
+      private var flareloader:HTTPService;
+      private var dtc:DelimitedTextConverter = new DelimitedTextConverter(',');
+      private var d:Array;
+      
+      [Bindable]
+      public var myArray:ArrayCollection = new ArrayCollection([]);
+
+
+      public function resultHandler(event:ResultEvent):void {
+        d = dtc.parse(event.result as String).nodes.data;
+        
+        // basically like
+        // SELECT NAME, sum(POPEST2008_CIV)
+        // GROUP BY NAME
+        var r:Array = new Query().select(['NAME', {ttl: sum('POPEST2008_CIV')}]).groupby('NAME').eval(d);
+        myArray.source = r;
+      }
+
+      /*
+         SUMLEV,REGION,DIVISION,STATE,NAME,SEX,AGE,CENSUS2000_CIV,ESTBASE2000_CIV,POPEST2000_CIV,POPEST2001_CIV,POPEST2002_CIV,POPEST2003_CIV,POPEST2004_CIV,POPEST2005_CIV,POPEST2006_CIV,POPEST2007_CIV,POPEST2008_CIV
+         010,0,0,0,United States,0,0,3805648,3805718,3855509,4026137,3985649,4032152,4092369,4101644,4159778,4273543,4313132
+       */
+
+      private function onCreationComplete():void {
+        flareloader = new HTTPService();
+        flareloader.addEventListener(ResultEvent.RESULT, resultHandler);
+        flareloader.addEventListener(FaultEvent.FAULT, loadFailed);
+        flareloader.url = "http://www.census.gov/popest/states/asrh/files/SC-EST2008-AGESEX-CIV.csv";
+        flareloader.method = "GET";
+        flareloader.resultFormat = "text";
+        flareloader.send();
+      }
+      
+      private function loadState(stateName:String, size:Number, treemap:TreeMapControl, lbl:Label):void {
+      	treemap.colorEncodingField = 'change';
+      	treemap.sizeEncodingField = 'POPEST2008_CIV';
+      	
+//treemap:
+//  dataurl: http://.....
+//  levels: AGE, SEX
+//  colorby: change(POPEST2008_CIV, POPEST2000_CIV)
+//  sizeby: POPEST2008_CIV
+//        	
+        var tm:Tree = GraphUtil.treeMap(d,
+          ['AGE', 'SEX'],
+          ['POPEST2000_CIV', 
+           'POPEST2008_CIV',
+           {change: div(sub('POPEST2008_CIV', 'POPEST2000_CIV'), 'POPEST2008_CIV')}],
+          function(o:Object):Boolean {return (o.SUMLEV == 40 && o.SEX != 0 && o.AGE != 999 && o.NAME == stateName)}
+          );
+        var sz:Number = Math.sqrt(size); 
+        treemap.width = sz/30;
+        treemap.height = sz/100;
+        treemap.data = tm;
+        treemap.transitionPeriod = NaN;
+        treemap.addEventListener(DataMouseEvent.MOUSE_OVER, function(e:DataMouseEvent):void {
+        	  treemap.setStyle('palette', 'hot');
+        	  treemap.invalidateProperties();
+            lbl.text = Strings.format("Age: {0:0}, Sex: {1:0}, Size: {2:0.0}, Color: {3:0.0%}, 2008: {4:0.0}",
+              e.data.AGE,
+              e.data.SEX,
+              e.data[treemap.sizeEncodingField],
+              e.data[treemap.colorEncodingField],
+              e.data.POPEST2008_CIV);
+          });
+        treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
+        	  treemap.setStyle('palette', 'bone');
+        	  treemap.invalidateProperties();
+            lbl.text = '';
+          });
+        treemap.invalidateProperties();
+      }
+
+			private function whoa(o:Object, i:Number):void {
+				var ttl:Label = (treemapGroup[i] as VBox).getChildAt(0) as Label;
+				ttl.text = o['NAME'];
+				var treemap:TreeMapControl = (treemapGroup[i] as VBox).getChildAt(1) as TreeMapControl;
+				var lbl:Label = (treemapGroup[i] as VBox).getChildAt(2) as Label;
+				loadState(o['NAME'], o['ttl'], treemap, lbl);
+			}
+
+      private function loadFailed(event:FaultEvent):void {
+        trace("Failed to load data");
+      }
+    ]]>
+  </mx:Script>
+
+  <mx:VBox>
+    <mx:Repeater id="myRep" dataProvider="{myArray}">
+      <mx:VBox id="treemapGroup" verticalGap="0">
+        <mx:Label id="treemapGroupTitle" text="" fontSize="14"/>
+        <controls:TreeMapControl id="treemap"
+                                 palette="bone"/>
+        <mx:Label id="selectedNode" text="" initialize="whoa(myRep.currentItem, myRep.currentIndex)"/>
+      </mx:VBox>
+    </mx:Repeater>
+  </mx:VBox>
+
+</mx:VBox>

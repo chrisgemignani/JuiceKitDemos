@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="vertical"
+                backgroundColor="0xffffff"
+                backgroundGradientColors="[0xffffff, 0xffffff]"
+                fontFamily="Arial"
+                xmlns:controls="controls.*"
+                xmlns:demos="demos.*"
+                paddingTop="2"
+                fontGridFitType="subpixel">
+
+  <!--
+
+  This application contains a viewstack that tests ALL JuiceKit components.
+  
+  The process:
+  
+    1) Develop a component
+    
+    2) Create a MXML component in src/demos that tests and illustrates the functionality of the component
+    
+       Follow the example given in src/demos/ColorAnimationDemo.mxml. The component should contain a
+       800px VBox that contains the component to be tested, a grey bar, and a text area on the right
+       that explains what the expected behavior is as different manipulations are performed.
+      
+       One-off additional controls needed for the demo should be placed in /src/controls
+  
+    3) Reference the component in the viewstack in JuiceKitTests.mxml. This will allow us to cycle through
+      all the components and test their functionality. Selected demos will be used to explain introduce 
+      JuiceKit to developers and will ALSO be placed in JuiceKitDemos.mxml. This application will be
+      published on the juicekit.org site. What we're looking for in JuiceKitDemos is demos that:
+    
+        * Simple demonstrations of key features of JuiceKit that we want developers to know about
+        * Help developers navigate JK. The ColorPalette demo is an example of this. It helps developers 
+          explore palettes, find the one they want, and supplies the source code to recreate that palette.
+        * Help us test and exercise JK. The ColorPalette demo displays nearly all of the JK ColorPalettes 
+          and let's you transform them. This has revealed some calculation problems in the Colors class.
+        * The source code should represent the canonical (http://en.wikipedia.org/wiki/Canonical, one 
+          of Chris' favorite words) way of building certain visualizations. The TreeMapGraphUtil.mxml 
+          demo is an example of this.
+
+  -->
+  
+  <mx:Script>
+    <![CDATA[
+    ]]>
+  </mx:Script>
+
+  <mx:Style>
+	  .detailPanelTitle {
+	    fontSize: 14;
+	    fontFamily: Arial;
+	  }
+	</mx:Style>
+
+  <mx:Style source="style.css"/>
+
+  <mx:Canvas height="100%" width="100%" id="mainCanvas">
+    <mx:VBox height="100%" width="100%">
+
+
+      <mx:LinkBar letterSpacing="-0.5"
+                  scaleY="1.0"
+                  fontSize="16"
+                  horizontalGap="2"
+                  separatorWidth="0"
+                  color="#000066"
+                  fontWeight="normal"
+                  dataProvider="{myViewStack}"/>
+
+      <mx:ViewStack id="myViewStack"
+                    borderStyle="none"
+                    width="100%"
+                    height="100%">
+
+        <mx:Canvas id="linechart"
+                   backgroundColor="#ffffff"
+                   label="LineCharts"
+                   width="100%"
+                   height="100%"
+                    horizontalScrollPolicy="off" verticalScrollPolicy="off">
+          <demos:LineChartDemo height="100%" width="100%"/>
+        </mx:Canvas>
+
+        <mx:Canvas id="barchart"
+                   backgroundColor="#ffffff"
+                   label="BarCharts"
+                   width="100%"
+                   height="100%"
+                    horizontalScrollPolicy="off" verticalScrollPolicy="off">
+          <demos:BarChartDemo height="100%" width="100%"/>
+        </mx:Canvas>
+
+        <mx:Canvas id="treemap"
+                   backgroundColor="#ffffff"
+                   label="TreeMaps"
+                   width="100%"
+                   height="100%">
+          <demos:TreeMapDemos height="100%" width="100%"/>
+        </mx:Canvas>
+
+        <mx:Canvas id="colorpalette"
+                   backgroundColor="#ffffff"
+                   label="Color Palettes" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+          <demos:ColorPaletteDemo/>
+        </mx:Canvas>
+
+        <mx:Canvas id="coloranimation"
+                   backgroundColor="#ffffff"
+                   label="Color Animation" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+          <demos:ColorAnimationDemo/>
+        </mx:Canvas>
+
+        <mx:Canvas id="livequery"
+                   backgroundColor="#ffffff"
+                   label="LiveQuery"
+                   width="800"
+                   height="100%">
+          <demos:LiveQueryDemo/>
+        </mx:Canvas>
+
+      </mx:ViewStack>
+    </mx:VBox>
+
+  </mx:Canvas>
+
+
+
+</mx:Application>

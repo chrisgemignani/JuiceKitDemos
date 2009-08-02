@@ -1,0 +1,48 @@
+/* CSS file */
+Application {
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+Label {
+  fontSize: 12;
+}
+
+Button {
+  fontWeight: normal;
+}
+
+.buttonStyle {
+   cornerRadius: 0;
+   paddingLeft: 0;
+   paddingRight: 0;
+   highlightAlphas: 0.12, 0;
+   fillColors: #ffffff, #ccccff, #ffffff, #eeeeee;
+   color: #333333;
+   fontSize: 11;
+   fontWeight: normal;
+}    
+
+
+
+.title {
+  fontSize: 24;
+  color: #333333;
+  fontWeight: bold;
+  letterSpacing: -0.75;
+}
+
+.code {
+  fontSize: 12;
+  fontFamily: Monaco, Courier New;
+  color: #333333;
+  letterSpacing: -0.25;
+}
+
+
+
+.label {
+  fontSize: 12;  
+  color: #333333;
+  letterSpacing: -0.25;
+}

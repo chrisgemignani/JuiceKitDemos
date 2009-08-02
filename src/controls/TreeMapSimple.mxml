@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                fontFamily="Arial"
+                creationComplete="onCreationComplete()"
+                color="#333333">
+
+  <mx:Script>
+    <![CDATA[
+      import flare.vis.data.Tree;
+      import org.juicekit.events.DataMouseEvent;
+      import org.juicekit.util.data.GraphUtil;
+      import mx.rpc.http.HTTPService;
+      import mx.rpc.events.ResultEvent;
+      import flare.util.Strings;
+      import flare.query.methods.*;
+      import flare.data.converters.DelimitedTextConverter;
+
+
+      public function onCreationComplete():void {
+
+        /*
+           The data looks like this:
+
+           SUMLEV,REGION,DIVISION,STATE,NAME,SEX,AGE,CENSUS2000_CIV,ESTBASE2000_CIV,POPEST2000_CIV,POPEST2001_CIV,POPEST2002_CIV,POPEST2003_CIV,POPEST2004_CIV,POPEST2005_CIV,POPEST2006_CIV,POPEST2007_CIV,POPEST2008_CIV
+           010,0,0,0,United States,0,0,3805648,3805718,3855509,4026137,3985649,4032152,4092369,4101644,4159778,4273543,4313132
+         */
+        var d:Array = [
+          {SEX: 1, NAME: 'VT', V: 1, A: 1, B: 2},
+          {SEX: 1, NAME: 'VA', V: 1, A: 2, B: 1},
+          {SEX: 1, NAME: 'NY', V: 1, A: 1.5, B: 3},
+          {SEX: 1, NAME: 'NY', V: 2, A: 1.5, B: 2.5},
+          {SEX: 2, NAME: 'VT', V: 1, A: 2, B: 2},
+          {SEX: 2, NAME: 'VA', V: 1, A: 1, B: 4},
+        ]
+
+        treemap.data = GraphUtil.treeMap(d,
+          ['NAME'],
+          ['A', 'B']
+          );
+
+        /*
+        treemap2.data = GraphUtil.treeMap(d,
+          ['SEX', 'NAME'],
+          ['A', 'B']
+          );
+
+        treemap3.data = GraphUtil.treeMap(d,
+          ['SEX', 'NAME', 'V'],
+          ['A', 'B']
+          );
+        */
+
+        treemap.addEventListener(DataMouseEvent.MOUSE_OVER, function(e:DataMouseEvent):void {
+            selectedNode.text = Strings.format("State: {0}, Sex: {1:0}, Size: {2:0.0}, Color: {3:0.0%}",
+              e.data.NAME,
+              e.data.SEX,
+              e.data[treemap.sizeEncodingField],
+              e.data[treemap.colorEncodingField]);
+//            if (treemap.getStyle('palette') != 'hot')treemap.setStyle('palette', 'hot');
+          });
+        treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
+//            selectedNode.text = '';
+//            if (treemap.getStyle('palette') != 'bone')treemap.setStyle('palette', 'bone');
+          });
+      }
+    ]]>
+  </mx:Script>
+
+
+  <mx:VBox id="treemapGroup">
+    <mx:Label id="treemapGroupTitle"
+              text="TreeMap demo"
+              fontSize="18"
+              color="#333333"
+              fontWeight="bold"/>
+              
+    <mx:HBox horizontalGap="50">
+      <mx:VBox width="220">
+        <controls:TreeMapControl id="treemap"
+                                 width="200"
+                                 height="200"
+                                 palette="bone"
+                                 colorEncodingField="A"
+                                 sizeEncodingField="B"
+                                 transitionPeriod="0.6" 
+                                 strokeColors="[0xffffff, 0xff0000, 0x0000ff, 0x00ff00]"
+                                 strokeThicknesses="[0,10,10,5,0]"/>
+        <mx:Label id="selectedNode" text=""/>
+      </mx:VBox>
+      <!--<controls:TreeMapControl id="treemap2"
+                               width="200"
+                               height="200"
+                               palette="bone"
+                               colorEncodingField="A"
+                               sizeEncodingField="B"
+                               transitionPeriod="0.6" 
+                               strokeColors="[0xffffff, 0xff0000, 0x0000ff, 0x00ff00]"
+                               strokeThicknesses="[0,10,10,5,0]"/>
+      <controls:TreeMapControl id="treemap3"
+                               width="200"
+                               height="200"
+                               palette="bone"
+                               colorEncodingField="A"
+                               sizeEncodingField="B"
+                               transitionPeriod="0.6" 
+                               strokeColors="[0xffffff, 0xff0000, 0xff0000, 0x0000ff]"
+                               strokeThicknesses="[0,10,10,5,0]"/>-->
+      <mx:Label id="selectedNode3" text=""/>
+    </mx:HBox>
+  </mx:VBox>
+
+</mx:VBox>

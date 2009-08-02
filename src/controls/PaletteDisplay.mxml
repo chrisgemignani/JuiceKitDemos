@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()" 
+    width="100%" height="100" horizontalScrollPolicy="auto" verticalScrollPolicy="off" 
+     xmlns:controls="controls.*">
+  <mx:Script>
+    <![CDATA[
+      import flare.util.Strings;
+      import org.juicekit.util.helper.Clipboard;
+      import mx.effects.AnimateProperty;
+      import mx.controls.Alert;
+      import org.juicekit.flare.util.Colors;
+      import org.juicekit.flare.util.palette.ColorPalette;
+      import mx.binding.utils.BindingUtils;
+      
+      [Bindable]
+      public function set colorPalette(v:ColorPalette):void {
+        _colorPalette = v;
+        init();
+      }
+      public function get colorPalette():ColorPalette {
+        return _colorPalette
+      }
+      private var _colorPalette:ColorPalette = ColorPalette.getPaletteByName('spectral', 16);
+
+      public function init():void {
+        while (hbox.numChildren>0) {
+          hbox.removeChildAt(0);
+        }
+        if (colorPalette != null) {
+          for each (var c:uint in colorPalette.values) {
+            var cb:ColorBlock = new ColorBlock();
+            cb.color = c;
+            hbox.addChild(cb);
+          }
+        }
+      }
+      
+      private function copyToClipboard():void {
+        var arr:Array = []
+        for each (var c:uint in colorPalette.values) {
+          arr.push([Strings.format('#{0:x6}', c & 0xffffff)]);
+        }
+        Clipboard.putTabularArray(arr);
+      }
+
+    ]]>
+  </mx:Script>
+  <mx:HBox id="hbox" horizontalGap="1" top="0" >
+  </mx:HBox>
+  <mx:LinkButton fontFamily="Arial" fontSize="9" top="90" color="#666666" label="Copy to Clipboard" click="copyToClipboard()"/>
+</mx:Canvas>

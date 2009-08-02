@@ -1,0 +1,32 @@
+The process:
+
+  1) Develop a component
+  
+  2) Create a MXML component in src/demos that tests and illustrates the functionality of the component
+  
+     Follow the example given in src/demos/ColorAnimationDemo.mxml. The component should contain a
+     800px VBox that contains the component to be tested, a grey bar, and a text area on the right
+     that explains what the expected behavior is as different manipulations are performed.
+    
+     One-off additional controls needed for the demo should be placed in /src/controls
+
+  3) Reference the component in the viewstack in JuiceKitTests.mxml. This will allow us to cycle through
+    all the components and test their functionality. Selected demos will be used to explain introduce 
+    JuiceKit to developers and will ALSO be placed in JuiceKitDemos.mxml. This application will be
+    published on the juicekit.org site. What we're looking for in JuiceKitDemos is demos that:
+  
+      * Simple demonstrations of key features of JuiceKit that we want developers to know about
+      * Help developers navigate JK. The ColorPalette demo is an example of this. It helps developers 
+        explore palettes, find the one they want, and supplies the source code to recreate that palette.
+      * Help us test and exercise JK. The ColorPalette demo displays nearly all of the JK ColorPalettes 
+        and let's you transform them. This has revealed some calculation problems in the Colors class.
+      * The source code should represent the canonical (http://en.wikipedia.org/wiki/Canonical, one 
+        of Chris' favorite words) way of building certain visualizations. The TreeMapGraphUtil.mxml 
+        demo is an example of this.
+
+This project contains two Applications.
+  
+  JuiceKitDemos.mxml : Will be used as a technical demonstration of key JK features
+  JuiceKitTests.mxml : Contains a viewstack with components for all testable demos.
+
+

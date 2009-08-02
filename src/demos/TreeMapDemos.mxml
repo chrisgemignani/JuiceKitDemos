@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:local="controls.*">
+
+  <mx:VBox id="treemap"
+           backgroundColor="#FFFFFF"
+           label="TreeMap"
+           width="800"
+           height="100%">
+    <mx:LinkBar letterSpacing="-0.5"
+                scaleY="1.0"
+                fontSize="12"
+                fontWeight="normal"
+                horizontalGap="2"
+                separatorWidth="0"
+                color="#000066"
+                fontFamily="Arial"
+                dataProvider="{treeMapViewStack}"/>
+    <mx:ViewStack id="treeMapViewStack" width="100%" height="100%">
+      <!--<local:TreeMapSimple id="treemapsimple" label="TreeMap Simple"/>-->
+      <local:TreeMapGraphUtil id="treemapgraphutil" label="Basic TreeMap"/>
+      <local:TreeMapByState id="treemapbystate" label="TreeMap by State"/>
+    </mx:ViewStack>
+  </mx:VBox>
+
+</mx:Canvas>

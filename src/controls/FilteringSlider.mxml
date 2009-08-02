@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="150" height="20" backgroundColor="0xeeeeff" initialize="init()">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.SliderEvent;
+		
+			[Bindable]
+			public var filterFunction:Function = function(o:Object):Boolean {
+				if (direction == 'gt') {
+					return o.x > num;					
+				} 
+				else {
+					return o.x < num;
+				}
+			};
+
+      [Bindable]			
+			public var val:Number = 0.0;
+			public var num:Number = 0.0;
+			public var direction:String = 'gt';
+		
+			private function changedSlider(e:Event):void {
+				num = slider.value;
+				dispatchEvent(new Event('filterChanged'));
+			}
+
+			private function thumbDragSlider(e:mx.events.SliderEvent):void {
+				num = e.value;
+				dispatchEvent(new Event('filterChanged'));
+			}
+			
+			private function init():void {
+				dispatchEvent(new Event('filterChanged'));
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:HSlider id="slider" width="120" value="{val}" minimum="0.0" maximum="1.0"  thumbDrag="thumbDragSlider(event)" change="changedSlider(event)">		
+	</mx:HSlider>
+</mx:Canvas>

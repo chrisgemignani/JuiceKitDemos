@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()" xmlns:local="*" fontFamily="Arial" fontSize="14" xmlns:controls="org.juicekit.visual.controls.*" xmlns:controls1="controls.*">
+	<mx:Script>
+		<![CDATA[
+		  import org.juicekit.flare.query.LiveQuery;
+			import flare.query.Query;
+			import flare.query.methods.*;
+			import mx.collections.ArrayCollection;
+		
+			[Bindable]
+      public var bq:LiveQuery = new LiveQuery();
+			
+			[Bindable]
+			public var ac:ArrayCollection = new ArrayCollection([
+			 { x: Math.random(), y: 20, z: 'fred' },
+			 { x: Math.random(), y: 20, z: 0.21 }
+			]);
+			
+			public var ac2:ArrayCollection = new ArrayCollection([
+			 { x: 1 },
+			 { x: 2 }
+			]);
+			
+			public function selected():void {
+			  dispatchEvent(new Event('detailTextChanged'));
+			}
+			public var detailsText:String = "hello";
+			
+			private function init():void {
+				for (var i:int=0; i<5; i++) {
+					ac.addItem({ x: Math.random(), y: 10 });
+				}
+				bq.dataProvider = ac;
+				bq.query = new Query([{sum: sum('x')}, {min: min('x')}, {max: max('x')}, {avg:average('x')}]);
+				bq.filterFunctions = new ArrayCollection([fs1, fs2]);
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="500" height="100%" verticalGap="20">
+		<mx:Text text="This demonstrates the LiveQuery"/>
+		<mx:HBox>
+			<controls1:NumberBox value="{bq.result.getItemAt(0).avg}" title="average"/>
+			<controls1:NumberBox value="{bq.result.getItemAt(0).min}" title="minimum"/>
+			<controls1:NumberBox value="{bq.result.getItemAt(0).max}" title="maximum"/>
+		</mx:HBox>	
+		<mx:HBox>
+			<controls1:NumberBox value="{ac.length}" title="Raw data len"/>
+			<controls1:NumberBox value="{bq.resultCalculations}" title="Calculations"/>
+			<controls1:NumberBox value="{bq.resultFetches}" title="Fetches"/>
+			<mx:Label text="{bq.evalTime}"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Min"/>
+			<controls1:FilteringSlider id="fs1" direction="gt" />
+			<mx:Label text="Max"/>
+			<controls1:FilteringSlider val="1.0" id="fs2" direction="lt" />
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Button label="Add Item" click="{ac.addItem({x:Math.random(), y: 21})}"/>
+			<mx:Button label="Set alternate data provider" click="{bq.dataProvider=ac2}"/>
+			<mx:Button label="Change query" click="{bq.query = new Query([{sum: sum('x')},{avg:average('x')}]);}"/>
+		</mx:HBox>
+		<controls:AutoDataGrid dataProvider="{bq.dataProvider }" height="350"/>
+	</mx:VBox>
+</mx:VBox>

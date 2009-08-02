@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     *
+     * Copyright (c) 2006 Darron Schall <darron@darronschall.com>
+     *
+     * Permission is hereby granted, free of charge, to any person
+     * obtaining a copy of this software and associated documentation
+     * files (the "Software"), to deal in the Software without
+     * restriction, including without limitation the rights to use,
+     * copy, modify, merge, publish, distribute, sublicense, and/or sell
+     * copies of the Software, and to permit persons to whom the
+     * Software is furnished to do so, subject to the following
+     * conditions:
+     *
+     * The above copyright notice and this permission notice shall be
+     * included in all copies or substantial portions of the Software.
+     *
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+     * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+     * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+     * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+     * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+     * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+     * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+     * OTHER DEALINGS IN THE SOFTWARE.
+     *
+-->
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         xmlns:effects="org.juicekit.effects.*"
+         width="100%"
+         height="100%"
+         horizontalScrollPolicy="off"
+         verticalScrollPolicy="off">
+
+  <mx:Script>
+    <![CDATA[
+      import mx.effects.easing.*;
+    ]]>
+  </mx:Script>
+
+  
+  <mx:String id="helpText">
+    <![CDATA[
+JuiceKit includes color animation routines.   
+
+The AnimateColor effect takes a fromValue, a toValue, and a duration
+and smoothly transitions the color values in between.
+
+Color Animation adapted from code from Darron Schall. 
+    ]]>
+  </mx:String>
+
+  <effects:AnimateColor id="animateRGB"
+                   target="{box}"
+                   property="backgroundColor"
+                   isStyle="true"
+                   fromValue="{startColor.selectedColor}"
+                   toValue="{stopColor.selectedColor}"
+                   duration="{duration.value}"/>
+
+  <effects:AnimateColor id="animateHSV"
+                   target="{boxHSV}"
+                   property="backgroundColor"
+                   isStyle="true"
+                   interpolationMode='hsv'
+                   fromValue="{startColor.selectedColor}"
+                   toValue="{stopColor.selectedColor}"
+                   duration="{duration.value}"/>
+
+  <mx:VBox width="800" height="100%">
+
+    <!--
+         The animate color effect that takes a from value, to value, and a duration
+         and smoothly transitions the color values in between.
+    -->
+
+    <mx:Text width="700" styleName="title" text="Color Animation"/>
+
+    <mx:HBox verticalAlign="middle">
+      <mx:Label text="Start Color:"  styleName="label"/>
+      <mx:ColorPicker id="startColor" selectedColor="0xC47D31"/>
+
+      <mx:Spacer width="10"/>
+
+      <mx:Label text="Stop Color:" styleName="label"/>
+      <mx:ColorPicker id="stopColor" selectedColor="0x67DEF9"/>
+
+      <mx:Spacer width="10"/>
+      <mx:Label text="Duration (ms):" styleName="label"/>
+      <mx:HSlider id="duration" value="500" minimum="500" maximum="2000" tickInterval="500" snapInterval="500" tickValues="[500,1000,1500,2000]"/>
+
+      <mx:Spacer width="10"/>
+
+      <mx:Button label="Go!" click="{animateRGB.play(); animateHSV.play();}"/>
+    </mx:HBox>
+
+
+    <mx:VBox width="100%" height="150" id="box" borderStyle="solid">
+      <mx:Label text="interpolationMode='rgb'" styleName="code"/>
+    </mx:VBox>
+    <mx:VBox width="100%" height="150" id="boxHSV" borderStyle="solid">
+      <mx:Label text="interpolationMode='hsv'" styleName="code"/>      
+    </mx:VBox>
+
+  </mx:VBox>
+
+  <mx:Canvas width="1"
+             height="100%"
+             top="0"
+             left="0"
+             backgroundColor="0xcccccc">
+  </mx:Canvas>
+
+  <mx:VBox>
+
+    <mx:Text id="detailsText"
+             fontFamily="Monaco, Anonymous, Courier New"
+             fontSize="12"
+             htmlText="{helpText}"
+             color="0x333333"
+             left="10"
+             height="100%"
+             width="100%"/>
+  </mx:VBox>
+
+</mx:HBox>

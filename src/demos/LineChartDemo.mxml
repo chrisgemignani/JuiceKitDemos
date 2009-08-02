@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         xmlns:local="*"
+         xmlns:controls="org.juicekit.visual.controls.*"
+         xmlns:charts="org.juicekit.charts.*"
+         initialize="init()"
+         fontFamily="Arial"
+         fontSize="12"
+         horizontalScrollPolicy="off"
+         verticalScrollPolicy="off">
+         
+  <mx:Script>
+    <![CDATA[
+      import mx.controls.Button;
+      import mx.collections.ArrayCollection;
+
+      private var dataProvider:ArrayCollection = new ArrayCollection([
+        {'QTR': '2008-Q1', value: 152.5, value2: 142.1, value3: 110.5, value4: 132.1},
+        {'QTR': '2008-Q2', value: 162.5, value2: 129.1, value3: 112.6, value4: 139.1},
+        {'QTR': '2008-Q3', value: 184.2, value2: 124.1, value3: 114.1, value4: 134.1},
+        {'QTR': '2008-Q4', value: 160.9, value2: 147.1, value3: 115.0, value4: 137.1}
+        ]);
+
+
+      // TODO: set max value for xAxis using Flare methods
+      private function changeData():void {
+        var dataProvider:ArrayCollection = new ArrayCollection([
+          {'QTR': '2008-Q1', value: 152.5, value2: 142.1, value3: 110.5, value4: 132.1},
+          {'QTR': '2008-Q2', value: 162.5, value2: 129.1, value3: 112.6, value4: 139.1},
+          {'QTR': '2008-Q3', value: 184.2, value2: 124.1, value3: 114.1, value4: 134.1},
+          {'QTR': '2008-Q4', value: 160.9, value2: 147.1, value3: 115.0, value4: 137.1}
+          ]);
+        chart1.dataProvider = dataProvider;
+      }
+
+      public var testActions:Array = [
+        {'name': 'Hot Palette',
+          'description': "Changes the color palette to hot. The effect is instantaneous.",
+          'code': "chart1.palette = 'hot'",
+          'click': function():void {chart1.palette = 'hot';}
+        },
+
+        {'name': 'Summer Palette',
+          'description': "Changes the color palette to summer. The effect is instantaneous.",
+          'code': "chart1.palette = 'summer'",
+          'click': function():void {chart1.palette = 'summer';}
+        },
+
+        {'name': 'labelFormat (0)',
+          'description': "Changes the yAxis label format to '0'. The effect is instantaneous.",
+          'code': "chart1.labelFormat = '0'",
+          'click': function():void {chart1.labelFormat = "0";}
+        },
+
+        {'name': 'labelFormat (0.000)',
+          'description': "Changes the yAxis label format to '0.000'. The effect is instantaneous.",
+          'code': "chart1.labelFormat = '0.000'",
+          'click': function():void {chart1.labelFormat = "0.000";}
+        },
+
+        {'name': 'lineWidth',
+          'description': "Changes the line width to 1.0. The effect is instantaneous.",
+          'code': "chart1.lineWidth = 1.0",
+          'click': function():void {chart1.lineWidth = 1.0;}
+        },
+
+        {'name': 'yMaximum',
+          'description': "Changes the yAxis maximum to 300. The effect is animated to help preserve the users context of the data.",
+          'click': function():void {chart1.yMaximum = 300;},
+        'code': 'chart1.yMaximum = 300',
+        'box': 2
+        },
+
+        {'name': 'yMaximum50',
+          'description': "Changes the yAxis maximum to 60. The effect is animated to help preserve the users context of the data.",
+          'code': 'chart1.yMaximum = 60',
+          'click': function():void {chart1.yMaximum = 60;},
+        'box': 2
+        },
+
+
+        {'name': 'Change data provider',
+          'description': "Creates a new ArrayCollection and sets it to the dataProvider for chart 1",
+          'code': "  var dataProvider:ArrayCollection = new ArrayCollection([\n    {'State': 'Minnesota', 'QTR': '2008-Q1', fred: 152.5, jane: 142.1},\n    {'State': 'Montreal', 'QTR': '2008-Q2', fred: 162.5, jane: 129.1},\n    {'State': 'Memphis', 'QTR': '2008-Q3', fred: 184.2, jane: 124.1},\n    {'State': 'Mississippi', 'QTR': '2008-Q4', fred: 160.9, jane: 147.1}\n    ]);\n  chart1.dataProvider = dataProvider;",
+          'click': function():void {
+          var dataProvider:ArrayCollection = new ArrayCollection([
+            {'State': 'Minnesota', 'QTR': '2008-Q1', fred: 152.5, jane: 142.1},
+            {'State': 'Montreal', 'QTR': '2008-Q2', fred: 162.5, jane: 129.1},
+            {'State': 'Memphis', 'QTR': '2008-Q3', fred: 184.2, jane: 124.1},
+            {'State': 'Mississippi', 'QTR': '2008-Q4', fred: 160.9, jane: 147.1}
+            ]);
+          chart1.dataProvider = dataProvider;
+        },
+        'box': 2
+        },
+
+        {'name': 'Change series1 to 50',
+          'description': "Creates a new ArrayCollection and sets it to the dataProvider for chart 1",
+          'click': function():void {
+          for (var i:int = 0; i < chart1.dataProvider.length; i++) {
+            var o:Object = chart1.dataProvider.getItemAt(i);
+            o['value'] = 50.0;
+            chart1.dataProvider.setItemAt(o, i);
+          }},
+        'box': 2
+        },
+
+        {'name': 'Low',
+          'description': "Sets chart detail level to low. The yAxis will only show the min and the max, the lines are thinner and labels are not shown on the lines.",
+          'click': function():void {chart1.detail = 'low';},
+        'code': "chart1.detail = 'low'",
+        'box': 3
+        },
+
+        {'name': 'Normal',
+          'description': "Sets chart detail level to normal",
+          'code': "chart1.detail = 'normal'",
+          'click': function():void {chart1.detail = 'normal';},
+        'box': 3
+        },
+
+        {'name': 'High',
+          'description': "Sets chart detail level to high. More detail is shown on the yAxis, the lines are thicker, and labels are shown on the lines.",
+          'click': function():void {chart1.detail = 'high';},
+        'code': "chart1.detail = 'high';",
+        'box': 3
+        }
+        ]
+
+
+      public function callTestAction(idx:int):void {
+        testActions[idx].click()
+      }
+
+
+      public function init():void {
+        var idx:int = 0;
+        for each (var itm:Object in testActions) {
+          var b:Button = new Button();
+          b.styleName = 'buttonStyle';
+          b.id = "button" + idx.toString();
+          b.label = itm.name;
+          b.addEventListener(MouseEvent.CLICK, function(e:Event):void {
+            // OMG! there must be a better way of doing this
+              var i:int = int((e.target.id as String).slice(6));
+              testActions[i].click();
+              testActionDescription.text = testActions[i].description
+              if (testActions[i].hasOwnProperty('code')) {
+                testActionCode.visible = true;
+                testActionCode.htmlText = testActions[i].code;
+              } else {
+                testActionCode.visible = false;
+              }
+            });
+          if (itm.box == '2') {
+            testActionBox2.addChild(b);
+          } else if (itm.box == '3') {
+            testActionBox3.addChild(b);
+          } else {
+            testActionBox.addChild(b);
+          }
+          idx += 1;
+        }
+      }
+    ]]>
+  </mx:Script>
+
+
+  <mx:String id="helpText">
+    <![CDATA[
+The JuiceKit LineChart makes it easy to display an ArrayCollection of objects as a line chart. Sensible visualization defaults are supported.
+
+Like make JuiceKit components, LineChart gets line colors from a ColorPalette. Series values are formatted using Strings.format, which uses an Excel-like formatting string.
+    ]]>
+  </mx:String>
+
+  <mx:String id="changeDataProviderText">
+    <![CDATA[
+  var dataProvider:ArrayCollection = new ArrayCollection([
+    {'State': 'Minnesota', 'QTR': '2008-Q1', fred: 152.5, jane: 142.1},
+    {'State': 'Montreal', 'QTR': '2008-Q2', fred: 162.5, jane: 129.1},
+    {'State': 'Memphis', 'QTR': '2008-Q3', fred: 184.2, jane: 124.1},
+    {'State': 'Mississippi', 'QTR': '2008-Q4', fred: 160.9, jane: 147.1}
+    ]);
+  chart1.dataProvider = dataProvider;
+    ]]>
+  </mx:String>
+
+
+  <mx:VBox height="100%" width="800" verticalGap="5">
+    <mx:Label styleName="title" text="Line Charts"/>
+    <mx:HBox id="testActionBox" horizontalGap="2">
+      <mx:Label text="Formatting: "/>
+      <mx:Label text="Label format: " fontSize="10" color="#666666"/>
+      <mx:TextInput id="lblFormat" width="50" toolTip="Enter your own label format here" change="{chart1.labelFormat = lblFormat.text; testActionCode.text='chart1.labelFormat = \''+lblFormat.text+'\''}"/>
+    </mx:HBox>
+    <mx:HBox id="testActionBox2" horizontalGap="2">
+      <mx:Label text="Data: "/>
+    </mx:HBox>
+    <mx:HBox id="testActionBox3" horizontalGap="2">
+      <mx:Label text="Detail: "/>
+    </mx:HBox>
+    <mx:Spacer height="20"/>
+    <mx:HBox width="100%" height="100%">
+      <charts:LineChart id="chart1"
+                        height="350"
+                        width="700"
+                        palette="hot"
+                        dataProvider="{dataProvider}"
+                        xAxisField="QTR"/>
+
+    </mx:HBox>
+  </mx:VBox>
+
+  <mx:Canvas width="1"
+             height="100%"
+             top="0"
+             left="0"
+             backgroundColor="0xcccccc">
+  </mx:Canvas>
+
+  <mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+    <mx:Text top="0"
+             styleName="code"
+             htmlText="{helpText}"
+             left="0"
+             width="100%"/>
+    <mx:Text id="testActionDescription" text="" width="100%" fontSize="12"/>
+    <mx:Text id="testActionCode"
+             visible="false"
+             text=""
+             width="100%"
+             fontFamily="Courier New"
+             fontSize="12"/>
+
+  </mx:VBox>
+
+
+</mx:HBox>
